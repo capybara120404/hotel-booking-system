@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: hotel-swagger
+          uri: lb://hotel-service
+          order: 5
+          predicates:
+            - Path=/swagger-ui.html,/swagger-ui/**,/v3/api-docs,/v3/api-docs/**
+        - id: booking-service
+          uri: lb://booking-service
+          order: 10
+          predicates:
+            - Path=/api/bookings/**,/api/users/**,/user/**,/booking/**
+        - id: hotel-service
+          uri: lb://hotel-service
+          order: 20
+          predicates:
+            - Path=/api/hotels/**,/api/rooms/**
+
+jwt:
+  secret: ${JWT_SECRET}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] [traceId=%X{traceId}] %-5level %logger{36} - %msg%n"
